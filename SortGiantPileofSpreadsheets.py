@@ -2,20 +2,19 @@ from __future__ import division, print_function
 
 import os
 
-import numpy as np
-import csv
 import glob
 
 from astropy.table import Table, Column, vstack
 
 from astropy.coordinates import SkyCoord
 from astropy import units as u
-from astropy.coordinates import Angle
 
-def __init__(self,tstuff):
-	self.__stuff = tstuff
 
-def assignID(file1,file2):
+def __init__(self, tstuff):
+    self.__stuff = tstuff
+
+
+def assignID(file1, file2):
     """
     Preconditions: Expects 2 files read as astropy Tables. Files must have RA and Dec
     columns.
@@ -118,20 +117,20 @@ def FGroup(filename):
     Requires the directory location of the csv files
     Postconditions: Returns one big file with all files for each image added as rows.
     """
-	
-	files = glob.glob(filename)
+    
+    files = glob.glob(filename)
 
-	file1, files2 = sortFiles(files)
+    file1, files2 = sortFiles(files)
 
-	#creates new csv file to pile all the new files onto
-	bigFile = file1
-	#and add all Rfiles to redFile 
-	for file in files2:
-	    #print(file.colnames) 
-	    #print(bigFile.colnames)
-	    bigFile = vstack([bigFile, file], join_type='exact')
-	    #print(file['DataNum'])
-	return bigFile
+    #creates new csv file to pile all the new files onto
+    bigFile = file1
+    #and add all Rfiles to redFile 
+    for file in files2:
+        #print(file.colnames) 
+        #print(bigFile.colnames)
+        bigFile = vstack([bigFile, file], join_type='exact')
+        #print(file['DataNum'])
+    return bigFile
 
 
 def GroupByFilter(FExt,object,filters = ['I','R','V','B'],target_dir = 'output'):
@@ -152,11 +151,11 @@ def GroupByFilter(FExt,object,filters = ['I','R','V','B'],target_dir = 'output')
         else:
             raise
 
-	pattern = FExt + '\*{}.csv'
+    pattern = FExt + '\*{}.csv'
 
     # send all the files to FGroup for each filter
-	for filter in filters:
-		bigfile = FGroup(pattern.format(filter))
+    for filter in filters:
+        bigfile = FGroup(pattern.format(filter))
 
-	#outputs table of located object's info in .csv format
-	bigfile.write(os.path.join(target_dir,object+filter+'Filt.csv'))
+    #outputs table of located object's info in .csv format
+    bigfile.write(os.path.join(target_dir,object+filter+'Filt.csv'))
