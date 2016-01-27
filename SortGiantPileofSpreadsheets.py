@@ -14,7 +14,7 @@ def __init__(self, tstuff):
     self.__stuff = tstuff
 
 
-def assignID(file1, file2):
+def assign_id(file1, file2):
     """
     Preconditions: Expects 2 files read as astropy Tables. Files must have RA
     and Dec columns.
@@ -50,7 +50,7 @@ def assignID(file1, file2):
     return file2
 
 
-def sortFiles(files):
+def sort_files(files):
     """
     Preconditions: Expects a list of csv files that have not yet been read as
     tables
@@ -110,13 +110,13 @@ def sortFiles(files):
         fileName_col = Column(data=[fileNames[ct]]*n_objects2, name='SourceFile')
         cur_file.add_column(fileName_col)
 
-        new_files[ct] = assignID(file1, cur_file)
+        new_files[ct] = assign_id(file1, cur_file)
         ct += 1
 
     return file1, new_files
 
 
-def FGroup(filename):
+def f_group(filename):
     """
     Preconditions: Must have the filter type letter as the last letter of the
     filename. Requires the directory location of the csv files
@@ -126,17 +126,19 @@ def FGroup(filename):
 
     files = glob.glob(filename)
 
-    file1, files2 = sortFiles(files)
+    file1, files2 = sort_files(files)
 
     # creates new csv file to pile all the new files onto
-    bigFile = file1
-    # and add all files to bigFile
+    big_file = file1
+    # and add all files to big_file
     for file in files2:
-        bigFile = vstack([bigFile, file], join_type='exact')
-    return bigFile
+        big_file = vstack([big_file, file], join_type='exact')
+
+        
+    return big_file
 
 
-def GroupByFilter(FExt, object, filters=['I', 'R', 'V', 'B'], target_dir='output'):
+def group_by_filter(f_ext, object, filters=['I', 'R', 'V', 'B'], target_dir='output'):
     """
     Preconditions: Must have the filter type letter as the last letter of the
     filename. Requires the directory location of the csv files and the name of
@@ -155,11 +157,11 @@ def GroupByFilter(FExt, object, filters=['I', 'R', 'V', 'B'], target_dir='output
         else:
             raise
 
-    pattern = FExt + '\*{}.csv'
+    pattern = f_ext + '\*{}.csv'
 
-    # send all the files to FGroup for each filter
+    # send all the files to f_group for each filter
     for filter in filters:
-        bigfile = FGroup(pattern.format(filter))
+        big_file = f_group(pattern.format(filter))
 
     # outputs table of located object's info in .csv format
-    bigfile.write(os.path.join(target_dir, object+filter+'Filt.csv'))
+    big_file.write(os.path.join(target_dir, object+filter+'Filt.csv'))

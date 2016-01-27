@@ -10,21 +10,21 @@ pileFileLocation = r'C:\Users\ShakAttack\Desktop\Everything\Class\2015Fall\Phys3
 
 # For Filter Grouped sheets
 objectName = "M71"
-filteredFileLocation = r'C:\Users\ShakAttack\Desktop\Everything\Class\2015Fall\Phys300\output'
+filteredFileLocation = r'C:\Users\ShakAttack\Desktop\Everything\Class\2015Fall\Phys300\garbage'
 filtersToUse = ['I', 'R', 'V', 'B']
-targetDirectory = 'output'
+targetDirectory = 'garbage'
 
-files = loadFiles(sourceFilesLocation)
+files = load_files(sourceFilesLocation)
 
 print("Files are loaded... ")
 
-writeTables(files, pileFileLocation)
+write_tables(files, pileFileLocation, objectName)
 # location/name of target directory can be set but has default
 # inner/outer radii, gain, and read noise can be sent but have defaults
 
 print("You are burried in a giant pile of spreadsheets... ")
 
-GroupByFilter(filteredFileLocation, objectName, filtersToUse, targetDirectory)
+group_by_filter(filteredFileLocation, objectName, filtersToUse, targetDirectory)
 # location/name of target directory can be set but has default
 # can be sent a list of filters to go through but defaults to I,R,V,B filters
 

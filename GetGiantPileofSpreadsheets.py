@@ -10,18 +10,17 @@ from astropy.wcs import WCS
 
 from msumastro import ImageFileCollection
 
-# constants
-innerRad = 20.
-outerRad = 30.
-Tgain = 1.5
-readNoise = 30
+__inner_rad__ = 20.
+__outer_rad__ = 30.
+__t_gain__ = 1.5
+__read_noise__ = 30
 
 
 def __init__(self, tstuff):
     self.__stuff = tstuff
 
 
-def loadFiles(fileLocation):
+def load_files(fileLocation):
     """
     Preconditions: Requires directory location of image files to be processed.
     Postcontions: Returns files as an image ImageFileCollection.
@@ -31,7 +30,7 @@ def loadFiles(fileLocation):
     return files
 
 
-def getFluxes(object1, data1, iR, oR, G, rN):
+def get_fluxes(object1, data1, iR, oR, G, rN):
     """
     Preconditions: Expects a sep extracted list of objects and the image data
     the objectlist is from. Can also take the inner radius, outer radius,
@@ -44,11 +43,11 @@ def getFluxes(object1, data1, iR, oR, G, rN):
     return flux, np.sqrt(fluxerr)
 
 
-def writeTables(ic1, target_dir='output', I=innerRad, O=outerRad, G=Tgain, N=readNoise):
+def write_tables(ic1, target_dir='output', obj_name='m71', I=__inner_rad__, O=__outer_rad__, G=__t_gain__, N=__read_noise__):
     """
     Preconditions: Requires an image collection and a directory location to
-    put the created files. Can also take the inner radius, outer radius, gain,
-    and read noise.
+    put the created files.  Requires the name of the object for hdu to use.
+    Can also take the inner radius, outer radius, gain, and read noise.
     Postconditions: Writes csv tables containing the information from each
     image with added columns for RA, Dec, flux , fluxerr, InnerRad, OuterRad,
     Gain, ReadNoise, and Filter.
@@ -60,7 +59,8 @@ def writeTables(ic1, target_dir='output', I=innerRad, O=outerRad, G=Tgain, N=rea
             pass
         else:
             raise
-    for hdu, fname in ic1.hdus(imagetyp='light', object='m71', return_fname=True):
+    for hdu, fname in ic1.hdus(imagetyp='light', object=obj_name, return_fname=True):
+        # made 'object' above a variable, hope it still works
         header = hdu.header
         data = hdu.data
         data = data.byteswap(True).newbyteorder()
@@ -91,7 +91,7 @@ def writeTables(ic1, target_dir='output', I=innerRad, O=outerRad, G=Tgain, N=rea
         dec_column = Column(data=ra_decs[1], unit='degree', name='Dec')
         object_table.add_column(dec_column)  # add Dec column to table
 
-        flux, fluxErr = getFluxes(objects, data, I, O, G, N)
+        flux, fluxErr = get_fluxes(objects, data, I, O, G, N)
 
         # Replace source detection flux with sum_circle flux
         object_table['flux'] = flux
@@ -106,13 +106,13 @@ def writeTables(ic1, target_dir='output', I=innerRad, O=outerRad, G=Tgain, N=rea
         Ofilter = hdu.header["Filter"]
 
         # make and add columns for inner/outer radius, gain, and read noise
-        innerRad_col = Column(data=[innerRad]*n_objects, name='InnerRad')
+        innerRad_col = Column(data=[I]*n_objects, name='InnerRad')
         object_table.add_column(innerRad_col)
-        outerRad_col = Column(data=[outerRad]*n_objects, name='OuterRad')
+        outerRad_col = Column(data=[O]*n_objects, name='OuterRad')
         object_table.add_column(outerRad_col)
-        Tgain_col = Column(data=[Tgain]*n_objects, name='Gain')
+        Tgain_col = Column(data=[G]*n_objects, name='Gain')
         object_table.add_column(Tgain_col)
-        readNoise_col = Column(data=[readNoise]*n_objects, name='ReadNoise')
+        readNoise_col = Column(data=[N]*n_objects, name='ReadNoise')
         object_table.add_column(readNoise_col)
         filter_col = Column(data=[Ofilter]*n_objects, name='Filter')
         object_table.add_column(filter_col)
