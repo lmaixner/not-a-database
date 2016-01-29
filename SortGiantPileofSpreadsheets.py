@@ -81,7 +81,6 @@ def sort_files(files):
     # removes file1 from new_files
     new_files.pop(ind)
     new_files2.pop(ind)
-    print(len(new_files))
 
     # imports file as numpy Table
     n_objects1 = len(file1)
@@ -134,7 +133,6 @@ def f_group(filename):
     for file in files2:
         big_file = vstack([big_file, file], join_type='exact')
 
-        
     return big_file
 
 
@@ -163,5 +161,5 @@ def group_by_filter(f_ext, object, filters=['I', 'R', 'V', 'B'], target_dir='out
     for filter in filters:
         big_file = f_group(pattern.format(filter))
 
-    # outputs table of located object's info in .csv format
-    big_file.write(os.path.join(target_dir, object+filter+'Filt.csv'))
+        # outputs table of located object's info in .csv format
+        big_file.write(os.path.join(target_dir, object+filter+'Filt.csv'))
