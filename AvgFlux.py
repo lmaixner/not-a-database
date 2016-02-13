@@ -11,14 +11,12 @@ import os
 
 from astropy.table import Table
 
-# what will be the names of the columns in the table created when
-# fluxes are averaged
-column_names = ['DataNum', 'AvgRA', 'AvgDec', 'AvgFlux', 'FluxErr', 'NumSources']
 
-
-def avg_flux(location,target_dir):
+def avg_flux(location, target_dir, identColumn='DataNum'):
     files = glob.glob(location)
     # print (files)
+    # what will be the names of the columns in the table created when
+    column_names = [identColumn, 'AvgRA', 'AvgDec', 'AvgFlux', 'FluxErr', 'NumSources']
 
     for file in files:
         # creates a new empty table to put the averaged data in
@@ -34,9 +32,9 @@ def avg_flux(location,target_dir):
         file = Table.read(file)
 
         num = 1
-        while num in file['DataNum']:
+        while num in file[identColumn]:
             # finds the rows in the file that match the current DataNum
-            matches = (file['DataNum'] == num)
+            matches = (file[identColumn] == num)
             # print (matches)
 
             # makes a copy of the file that only contains the rows that match
