@@ -30,13 +30,13 @@ def assign_id(file1, file2):
     # returns two catalogs comparing file2 to file 1
     c = SkyCoord(ra=ra1*u.degree, dec=dec1*u.degree)
     catalog = SkyCoord(ra=ra2*u.degree, dec=dec2*u.degree)
-    idx, d2d, d3d = c.match_to_catalog_3d(catalog)
+    idx, d2d, d3d = c.match_to_catalog_sky(catalog)  # changed from .3d
     # some of the matches are likely to be duplicates and not within a
     # reasonable distance to be the same star
 
     # return an array of true's and false's where match is within specified
     # range (2 arcsec)
-    good_matches = d2d < 2*u.arcsec
+    good_matches = d2d < .5*u.arcsec
 
     # get all matches that are within 2 arcsec of the target
     idx2 = idx[good_matches]

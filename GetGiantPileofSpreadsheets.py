@@ -82,6 +82,7 @@ def write_tables(ic1, target_dir='output', obj_name='m71', I=__inner_rad__, O=__
         wcs = WCS(header=header)
         # create a table for the object to fill
         object_table = Table(objects)
+        # print(object_table.colnames)
         # retrieve the list of RA/Decs
         ra_decs = wcs.all_pix2world(objects['x'], objects['y'], 0)
         # separate RA column

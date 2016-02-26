@@ -1,18 +1,22 @@
 from GetGiantPileofSpreadsheets import *
 from SortGiantPileofSpreadsheets import *
+from AvgFlux import *
 
 # Location of Source Images
 sourceFilesLocation = r'C:\Users\ShakAttack\Desktop\Everything\Class\2015Fall\Phys300\2015_09_25_Reduced'
 
 # Where to put intermediate spreadsheets
 # full path or folder in current directory
-pileFileLocation = r'C:\Users\ShakAttack\Desktop\Everything\Class\2015Fall\Phys300\garbage'
+pileFileLocation = r'garbage'
 
 # For Filter Grouped sheets
 objectName = "M71"
-filteredFileLocation = r'C:\Users\ShakAttack\Desktop\Everything\Class\2015Fall\Phys300\garbage'
+filteredFileLocation = r'garbage'
 filtersToUse = ['I', 'R', 'V', 'B']
 targetDirectory = 'garbage'
+
+# Location and glob mask for the averaging function, would like to split
+AvgLocAndFilt = r'C:\Users\ShakAttack\Desktop\Everything\Class\Git\garbage\*Filt*.csv'
 
 files = load_files(sourceFilesLocation)
 
@@ -29,3 +33,7 @@ group_by_filter(filteredFileLocation, objectName, filtersToUse, targetDirectory)
 # can be sent a list of filters to go through but defaults to I,R,V,B filters
 
 print("They are now grouped by filter... ")
+
+avg_flux(AvgLocAndFilt,targetDirectory)
+
+print("Filters have been averaged... ")

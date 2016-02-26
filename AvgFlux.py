@@ -1,12 +1,10 @@
 """
 -Would like to seperate the glob mask from the source directory but
 it's not behaving as I expected it to
--Still need to add the FluxErr because right now it's just set to always
-be 0 which would rock but is not true
 -Maybe track somewhere which files the sources were averaged from
 -Need to see if there are more columns that should be preserved from
 the old sheets
--Possibly combine filter colors into one sheet
+-Possibly combine filter colors into one sheet (probably not usefull)
 """
 import glob
 import os
@@ -18,11 +16,11 @@ def __init__(self, tstuff):
     self.__stuff = tstuff
 
 
-def avg_flux(location, target_dir, identColumn='DataNum',srcs = 0):
+def avg_flux(location, target_dir, srcs = 0, identColumn='DataNum'):
     files = glob.glob(location)
     # print (files)
     # what will be the names of the columns in the table created when
-    column_names = [identColumn, 'NumSources', 'AvgRA', 'AvgDec', 'AvgFlux', 'FluxErr', 'InstruMag', 'AvgPeak', 'a_Avg', 'b_Avg', 'thetaAvg']
+    column_names = [identColumn, 'NumSources', 'AvgRA', 'AvgDec', 'AvgFlux', 'FluxErr', 'InstruMag', 'MaxPeak', 'a_Avg', 'b_Avg', 'thetaAvg']
 
     for file in files:
         # creates a new empty table to put the averaged data in
@@ -53,7 +51,7 @@ def avg_flux(location, target_dir, identColumn='DataNum',srcs = 0):
             if num_in_avg > srcs:
                 # averages the data for the current DataNum
                 flux_avg = sum(file2['flux'])/num_in_avg
-                peak_avg = sum(file2['peak'])/num_in_avg
+                max_peak = max(file2['peak'])
                 ra_avg = sum(file2['RA'])/num_in_avg
                 dec_avg = sum(file2['Dec'])/num_in_avg
                 # make fractional square add root divide de-fractionalize
@@ -67,7 +65,7 @@ def avg_flux(location, target_dir, identColumn='DataNum',srcs = 0):
 
                 # adds the new row to the table
                 # print (num, ra_avg, dec_avg, flux_avg, flux_err, num_in_avg)
-                row = [num, num_in_avg, ra_avg, dec_avg, flux_avg, flux_err, inst_mag, peak_avg, a_avg, b_avg, theta_avg]
+                row = [num, num_in_avg, ra_avg, dec_avg, flux_avg, flux_err, inst_mag, max_peak, a_avg, b_avg, theta_avg]
                 new_table.add_row(row)
             num += 1  # increment counter
 
