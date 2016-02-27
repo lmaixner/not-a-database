@@ -28,14 +28,15 @@ def assign_id(file1, file2):
     dec2 = file2['Dec']
 
     # returns two catalogs comparing file2 to file 1
-    c = SkyCoord(ra=ra1*u.degree, dec=dec1*u.degree)
-    catalog = SkyCoord(ra=ra2*u.degree, dec=dec2*u.degree)
+    catalog = SkyCoord(ra=ra1*u.degree, dec=dec1*u.degree)
+    c = SkyCoord(ra=ra2*u.degree, dec=dec2*u.degree)
     idx, d2d, d3d = c.match_to_catalog_sky(catalog)  # changed from .3d
     # some of the matches are likely to be duplicates and not within a
     # reasonable distance to be the same star
 
     # return an array of true's and false's where match is within specified
-    # range (2 arcsec)
+    # range (.5 arcsec)
+    print ('idx = ',type(idx))
     good_matches = d2d < .5*u.arcsec
 
     # get all matches that are within 2 arcsec of the target
@@ -43,7 +44,7 @@ def assign_id(file1, file2):
 
     # apply file1's dataname to file2's dataname at the indexes specified by
     # idx2
-    file2['DataNum'][idx2] = file1['DataNum'][good_matches]
+    file2['DataNum'][good_matches] = file1['DataNum'][idx2]
     # now have 2 files with the DataName column matching for stars with RA/Dec
     # close enough
 
