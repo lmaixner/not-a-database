@@ -1,31 +1,33 @@
 """
 -Would like to seperate the glob mask from the source directory but
 it's not behaving as I expected it to
--Maybe track somewhere which files the sources were averaged from
--Need to see if there are more columns that should be preserved from
-the old sheets
--Possibly combine filter colors into one sheet (probably not usefull)
+-Maybe track somewhere which files the source files were averaged from
 """
 import glob
 import os
 from math import sqrt, log10
 from astropy.table import Table
+from GetGiantPileofSpreadsheets import mk_fldr
 
 
 def __init__(self, tstuff):
     self.__stuff = tstuff
 
 
-def avg_flux(location, target_dir, srcs = 0, identColumn='DataNum'):
+def avg_flux(location, target_dir='Averaged', parent_dir='', identColumn='DataNum', flux_name='flux', srcs=0):
+    mk_fldr(target_dir, parent_dir)
+
     files = glob.glob(location)
     # print (files)
     # what will be the names of the columns in the table created when
     column_names = [identColumn, 'NumSources', 'AvgRA', 'AvgDec', 'AvgFlux', 'FluxErr', 'InstruMag', 'MaxPeak', 'a_Avg', 'b_Avg', 'thetaAvg']
-
+    write_location = os.path.join(parent_dir, target_dir)
+    print (files)
     for file in files:
+        print (file)
         # creates a new empty table to put the averaged data in
         new_table = Table(names=column_names)
-        print (file)
+        # print (file)
 
         # retrieve file name minus extension and location for later use
         base_name = os.path.basename(file)
@@ -50,7 +52,7 @@ def avg_flux(location, target_dir, srcs = 0, identColumn='DataNum'):
             # makes sure there are enough points to matter
             if num_in_avg > srcs:
                 # averages the data for the current DataNum
-                flux_avg = sum(file2['flux'])/num_in_avg
+                flux_avg = sum(file2[flux_name])/num_in_avg
                 max_peak = max(file2['peak'])
                 ra_avg = sum(file2['RA'])/num_in_avg
                 dec_avg = sum(file2['Dec'])/num_in_avg
@@ -70,5 +72,7 @@ def avg_flux(location, target_dir, srcs = 0, identColumn='DataNum'):
             num += 1  # increment counter
 
         # write averaged table out to disk
-        print (new_table)
-        new_table.write(os.path.join(target_dir, first_part+'(Averaged).csv'))
+        # print (new_table)
+        new_table.write(os.path.join(write_location, first_part+'(Avg).csv'))
+
+    return write_location

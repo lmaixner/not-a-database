@@ -1,31 +1,30 @@
 from __future__ import division, print_function, absolute_import
 
 import os
-
 import glob
 
 from astropy.table import Table, Column, vstack
-
 from astropy.coordinates import SkyCoord
 from astropy import units as u
+from GetGiantPileofSpreadsheets import mk_fldr
 
 
 def __init__(self, tstuff):
     self.__stuff = tstuff
 
 
-def assign_id(file1, file2):
+def assign_id(file1, file2, RA='RA', Dec='Dec'):
     """
     Preconditions: Expects 2 files read as astropy Tables. Files must have RA
     and Dec columns.
     Postconditions: Fills the DataNum column in the second file with the
     DataNum of the closest RA/Dec match in the first file.
     """
-    ra1 = file1['RA']
-    dec1 = file1['Dec']
+    ra1 = file1[RA]
+    dec1 = file1[Dec]
 
-    ra2 = file2['RA']
-    dec2 = file2['Dec']
+    ra2 = file2[RA]
+    dec2 = file2[Dec]
 
     # returns two catalogs comparing file2 to file 1
     catalog = SkyCoord(ra=ra1*u.degree, dec=dec1*u.degree)
@@ -36,7 +35,6 @@ def assign_id(file1, file2):
 
     # return an array of true's and false's where match is within specified
     # range (.5 arcsec)
-    print ('idx = ',type(idx))
     good_matches = d2d < .5*u.arcsec
 
     # get all matches that are within 2 arcsec of the target
@@ -137,7 +135,7 @@ def f_group(filename):
     return big_file
 
 
-def group_by_filter(f_ext, object, filters=['I', 'R', 'V', 'B'], target_dir='output'):
+def group_by_filter(f_ext, object, filters=['I', 'R', 'V', 'B'], target_dir='Sorted', parent_dir=''):
     """
     Preconditions: Must have the filter type letter as the last letter of the
     filename. Requires the directory location of the csv files and the name of
@@ -148,14 +146,10 @@ def group_by_filter(f_ext, object, filters=['I', 'R', 'V', 'B'], target_dir='out
     filter) for each filter type with the csv files for each image with
     columns DataNum (matched by RA/Dec) and SourceFile.
     """
-    try:
-        os.mkdir(target_dir)
-    except WindowsError as e:
-        if 'Cannot create a file when that file already exists' in e.strerror:
-            pass
-        else:
-            raise
+    mk_fldr(target_dir, parent_dir)
+    write_location = os.path.join(parent_dir, target_dir)
 
+    # f_ext is where I'm trying to grab the files from
     pattern = f_ext + '\*{}.csv'
 
     # send all the files to f_group for each filter
@@ -163,4 +157,6 @@ def group_by_filter(f_ext, object, filters=['I', 'R', 'V', 'B'], target_dir='out
         big_file = f_group(pattern.format(filter))
 
         # outputs table of located object's info in .csv format
-        big_file.write(os.path.join(target_dir, object+filter+'Filt.csv'))
+        big_file.write(os.path.join(write_location, object+filter+'Filt.csv'))
+
+    return write_location

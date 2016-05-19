@@ -1,14 +1,17 @@
 from __future__ import division, print_function
 
 import os
-
 import numpy as np
 import sep
 
 from astropy.table import Table, Column
 from astropy.wcs import WCS
-
 from msumastro import ImageFileCollection
+
+# to display image with sources circled
+from ccdproc import CCDData
+from astropy.visualization import scale_image
+import matplotlib.pyplot as plt
 
 __inner_rad__ = 20.
 __outer_rad__ = 30.
@@ -43,7 +46,30 @@ def get_fluxes(object1, data1, iR, oR, G, rN):
     return flux, np.sqrt(fluxerr)
 
 
-def write_tables(ic1, target_dir='output', obj_name='m71', I=__inner_rad__, O=__outer_rad__, G=__t_gain__, N=__read_noise__):
+def mk_fldr(target_dir, parent_dir = ''):
+    """ need to add targeting for where the directory gets made then make the object name the parent directory for all the ones created by the program
+    Creates a folder with the name given.
+    """
+    if parent_dir == '':
+        try:
+            os.mkdir(target_dir)
+        except WindowsError as e:
+            if 'Cannot create a file when that file already exists' in e.strerror:
+                pass
+            else:
+                raise
+    else:
+        mk_fldr(parent_dir)
+        try:
+            os.mkdir(os.path.join(parent_dir, target_dir))
+        except WindowsError as e:
+            if 'Cannot create a file when that file already exists' in e.strerror:
+                pass
+            else:
+                raise
+
+
+def write_tables(ic1, target_dir='output', obj_name='M71', I=__inner_rad__, O=__outer_rad__, G=__t_gain__, N=__read_noise__):
     """
     Preconditions: Requires an image collection and a directory location to
     put the created files.  Requires the name of the object for hdu to use.
@@ -52,13 +78,10 @@ def write_tables(ic1, target_dir='output', obj_name='m71', I=__inner_rad__, O=__
     image with added columns for RA, Dec, flux , fluxerr, InnerRad, OuterRad,
     Gain, ReadNoise, and Filter.
     """
-    try:
-        os.mkdir(target_dir)
-    except WindowsError as e:
-        if 'Cannot create a file when that file already exists' in e.strerror:
-            pass
-        else:
-            raise
+    # creates a folder to put the created files
+    mk_fldr(target_dir, obj_name)
+    write_location = os.path.join(obj_name, target_dir)
+
     for hdu, fname in ic1.hdus(imagetyp='light', object=obj_name, return_fname=True):
         # made 'object' above a variable, hope it still works
         header = hdu.header
@@ -121,5 +144,18 @@ def write_tables(ic1, target_dir='output', obj_name='m71', I=__inner_rad__, O=__
         base_name = os.path.basename(fname)
         first_part, _ = os.path.splitext(base_name)
 
+        """
+        # to plot image with circles around sources
+        my_image = CCDData.read(fname)
+        scaled = scale_image(my_image, min_percent=20, max_percent=99)
+        plt.imshow(scaled, cmap='gray')
+        mean_flux = flux[good_flux].mean()
+        scale = 20*np.sqrt(flux[good_flux]/mean_flux)
+        plt.scatter(objects['x'][good_flux], objects['y'][good_flux], marker='o',facecolor='none', s=scale, edgecolor='cyan', lw=1)
+        plt.show()
+        """
+
         # outputs table of located object's info in .csv format
-        object_table.write(os.path.join(target_dir, first_part+'.csv'))
+        object_table.write(os.path.join(write_location, first_part+'.csv'))
+
+    return write_location
