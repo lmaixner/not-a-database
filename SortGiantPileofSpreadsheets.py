@@ -6,19 +6,35 @@ import glob
 from astropy.table import Table, Column, vstack
 from astropy.coordinates import SkyCoord
 from astropy import units as u
-from GetGiantPileofSpreadsheets import mk_fldr
+from GetGiantPileofSpreadsheets import make_folder
 
 
 def __init__(self, tstuff):
     self.__stuff = tstuff
 
 
-def assign_id(file1, file2, RA='RA', Dec='Dec'):
-    """
-    Preconditions: Expects 2 files read as astropy Tables. Files must have RA
-    and Dec columns.
-    Postconditions: Fills the DataNum column in the second file with the
-    DataNum of the closest RA/Dec match in the first file.
+def assign_id(file1, file2, RA='RA', Dec='Dec', search_range=.5):
+    """Compares two files and fills the DataNum column of the smaller file.
+
+    Fills the DataNum column in the second file with the DataNum of the closest
+    RA/Dec match within the given arcsecond range in the first file.
+
+    Parameters
+    ------
+    file1: astropy table
+        file containing more data sources and DataNum column filled
+    file2: astropy table
+        file to have DataNum column matched to file1
+    RA: string, optional
+        table key, name of column holding Right Ascension data
+    Dec: string, optional
+        table key, name of column holding Declination data
+
+    Returns
+    ------
+    file2: astropy table
+        the DataNum column will be filled with the DataNum of the closest
+        source from the other table
     """
     ra1 = file1[RA]
     dec1 = file1[Dec]
@@ -27,15 +43,15 @@ def assign_id(file1, file2, RA='RA', Dec='Dec'):
     dec2 = file2[Dec]
 
     # returns two catalogs comparing file2 to file 1
-    catalog = SkyCoord(ra=ra1*u.degree, dec=dec1*u.degree)
-    c = SkyCoord(ra=ra2*u.degree, dec=dec2*u.degree)
+    catalog = SkyCoord(ra=ra1 * u.degree, dec=dec1 * u.degree)
+    c = SkyCoord(ra=ra2 * u.degree, dec=dec2 * u.degree)
     idx, d2d, d3d = c.match_to_catalog_sky(catalog)  # changed from .3d
     # some of the matches are likely to be duplicates and not within a
     # reasonable distance to be the same star
 
     # return an array of true's and false's where match is within specified
-    # range (.5 arcsec)
-    good_matches = d2d < .5*u.arcsec
+    # range (.5 arcsec is best)
+    good_matches = d2d < search_range * u.arcsec
 
     # get all matches that are within 2 arcsec of the target
     idx2 = idx[good_matches]
@@ -50,13 +66,30 @@ def assign_id(file1, file2, RA='RA', Dec='Dec'):
 
 
 def sort_files(files):
-    """
-    Preconditions: Expects a list of csv files that have not yet been read as
-    tables
-    Postconditions: Returns the longest file,list with the longest file
-    removed. All of the files have two columns added. The SourceFile column
-    has the name of the file. The DataNum column is filled for the longest
-    file and has zeros for the rest.
+    """Finds the longest file in the list and separates it, also adds two columns.
+
+    Searches the list of files for the longest file, removes it to be the
+    comparison file, and creates a shorter list with the longest file removed.
+    It adds the SourceFile and DataNum columns to each file which combined
+    identify the source and its image once the files are combined later.
+    The Source file column is filed with the name of the file and the DataNum
+    column is filled with zeros except for the longest file which is filled
+    with sequential numbers.
+
+    Parameters
+    ------
+    files: list of .csv files
+        .csv files that have not yet been read as tables
+
+    Returns
+    ------
+    file1: astropy table
+        the longest file from the list of files it started with with the
+        SourceFile and DataNum columns added
+    new_files: list of astropy tables
+        the list of files it started with with file1 removed and the remaining
+        files read as astropy tables with the SourceFile and DataNum columns
+        added to each table
     """
     new_files = list(files)
     new_files2 = list(new_files)  # duplicate list
@@ -85,10 +118,10 @@ def sort_files(files):
     n_objects1 = len(file1)
     # adds a DataNum Column to the table with sequential values to be match to
     # the rest of the files
-    dataNum1_col = Column(data=range(1, n_objects1+1), name='DataNum')
+    dataNum1_col = Column(data=range(1, n_objects1 + 1), name='DataNum')
     file1.add_column(dataNum1_col)
     # adds a SourceFile Column to the table
-    fileName_col = Column(data=[fileNames[ind]]*n_objects1, name='SourceFile')
+    fileName_col = Column(data=[fileNames[ind]] * n_objects1, name='SourceFile')
     file1.add_column(fileName_col)
     # removes file1 name from it's position in fileNames list
     del fileNames[ind]
@@ -103,9 +136,9 @@ def sort_files(files):
         n_objects2 = len(file2)
         # adds a DataNum Column to the table with 0000 values to be matched to
         # file1 values
-        dataNum2_col = Column(data=[0000]*n_objects2, name='DataNum')
+        dataNum2_col = Column(data=[0000] * n_objects2, name='DataNum')
         cur_file.add_column(dataNum2_col)
-        fileName_col = Column(data=[fileNames[ct]]*n_objects2, name='SourceFile')
+        fileName_col = Column(data=[fileNames[ct]] * n_objects2, name='SourceFile')
         cur_file.add_column(fileName_col)
 
         new_files[ct] = assign_id(file1, cur_file)
@@ -116,10 +149,21 @@ def sort_files(files):
 
 def f_group(filename):
     """
-    Preconditions: Must have the filter type letter as the last letter of the
-    filename. Requires the directory location of the csv files
-    Postconditions: Returns one big file with all files for each image added
-    as rows.
+    For the function to run the files must have the filter type letter as the
+    last letter of the filename. Glob something... confused. Hmm. Assigns the
+    DataNums of file1 to the sources at the same locations in the rest of the
+    files. Stacks all the files for one filter together into one larger file
+    using file1 as a base.
+
+    Parameters
+    ------
+    filename: file extension... glob mask?
+        location of the files to be used?
+
+    Returns
+    ------
+    big_file: astropy table
+        all files of that filter stacked together into one large table
     """
 
     files = glob.glob(filename)
@@ -135,18 +179,39 @@ def f_group(filename):
     return big_file
 
 
-def group_by_filter(f_ext, object, filters=['I', 'R', 'V', 'B'], target_dir='Sorted', parent_dir=''):
+def group_by_filter(f_ext, object, filters=None, target_dir='Sorted', parent_dir=''):
     """
-    Preconditions: Must have the filter type letter as the last letter of the
-    filename. Requires the directory location of the csv files and the name of
-    the object being observed for naming the output file.  Can also take the
-    filter types to look for as a list and the output directory to put the
-    files in.
-    Postconditions: Creates one csv file (named for observed object and
-    filter) for each filter type with the csv files for each image with
-    columns DataNum (matched by RA/Dec) and SourceFile.
+    For the function to run the files must have the filter type letter as the
+    last letter of the filename. Creates a directory in the location specified
+    by parent_dir/target_dir to put the files it creates. The files in the
+    source location are comined into one large file per filter color and saved
+    in .csv format named for the observed object and filter color for each
+    filter type available. The csv files for each image have DataNum (matched
+    by RA/Dec) and SourceFile columns added.
+
+    Parameters
+    ------
+    f_ext: file extension
+        location of the files to use
+    object: string
+        name of the object the images are of for naming the output files
+    filters: list of strings, optional
+        filter colors grouping will be done for, default value is ['I', 'R', 'V', 'B']
+    target_dir: string, optional
+        name of the directory that it will place created files
+    parent_dir: string, optional
+        name of parent directory of where it will place files
+
+    Returns
+    ------
+    write_location: file extension
+        location the created files were saved
     """
-    mk_fldr(target_dir, parent_dir)
+    
+    if filters is None:
+        filters = ['I', 'R', 'V', 'B']
+
+    make_folder(target_dir, parent_dir)
     write_location = os.path.join(parent_dir, target_dir)
 
     # f_ext is where I'm trying to grab the files from
@@ -157,6 +222,6 @@ def group_by_filter(f_ext, object, filters=['I', 'R', 'V', 'B'], target_dir='Sor
         big_file = f_group(pattern.format(filter))
 
         # outputs table of located object's info in .csv format
-        big_file.write(os.path.join(write_location, object+filter+'Filt.csv'))
+        big_file.write(os.path.join(write_location, object + filter + 'Filt.csv'))
 
     return write_location
