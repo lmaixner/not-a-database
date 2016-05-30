@@ -4,8 +4,8 @@ from __future__ import division, print_function, absolute_import
 
 import glob
 from SortGiantPileofSpreadsheets import assign_id
-
-from astropy.table import Table, Column
+import numpy as np
+from astropy.table import Table
 import matplotlib.pyplot as plt
 
 
@@ -43,7 +43,7 @@ def make_CMD(short_w_file, long_w_file):
     #print(long_w["DataNum", "AvgRA"], short_w["DataNum", "AvgRA"])
 
     # plot short - long vs instrumental mag
-    plt(short_w["AvgFlux"]-long_w["AvgFlux"], short_w["InstruMag"])
+    #plt(short_w["AvgFlux"] - long_w["AvgFlux"], short_w["InstruMag"])
 
 
 def match(first, second):
@@ -72,9 +72,10 @@ def match(first, second):
             matches.append(True)
         else:
             matches.append(False)
+    matches = np.array(matches)
     #print(len(matches))
     print(first["DataNum", "AvgRA"])
-    first = first[matches] ####this isn't working do I need to make it an array instead or......
+    first = first[matches]
     print(first["DataNum", "AvgRA"])
     #print(len(matches))
     return first
