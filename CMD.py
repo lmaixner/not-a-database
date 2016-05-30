@@ -24,9 +24,10 @@ def make_CMD(short_w_file, long_w_file):
 
     Parameters
     ------
-    short_w_file, long_w_file: filename
-    short_wave, long_wave: list
-    short_w, long_w: astropy table
+    short_w_file: filename
+        file containing data for shorter wavelength filter
+    long_w_file: filename
+        file containing data for longer wavelength filter
 
     """
     short_wave = glob.glob(short_w_file)
@@ -55,13 +56,15 @@ def match(first, second):
 
     Parameters
     ------
-    first, second: astropy table
-    first_list, second_list: list
-    matches: list
+    first: astropy table
+        filter color data to be altered, read as a table
+    second: astropy table
+        filter color data to compared first to, read as a table
 
     Returns
     ------
     first: astropy table
+        contains only values from first that are also in second
     """
 
     matches = []
