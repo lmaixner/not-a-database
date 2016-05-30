@@ -14,13 +14,13 @@ def __init__(self, tstuff):
     self.__stuff = tstuff
 
 
-def avg_flux(location, target_dir='Averaged', parent_dir='', identColumn='DataNum', flux_name='flux', srcs=0):
+def avg_flux(location, target_dir='Averaged', parent_dir='', ident_column='DataNum', flux_name='flux', srcs=1):
     mk_fldr(target_dir, parent_dir)
 
     files = glob.glob(location)
     # print (files)
     # what will be the names of the columns in the table created when
-    column_names = [identColumn, 'NumSources', 'AvgRA', 'AvgDec', 'AvgFlux', 'FluxErr', 'InstruMag', 'MaxPeak', 'a_Avg', 'b_Avg', 'thetaAvg']
+    column_names = [ident_column, 'NumSources', 'AvgRA', 'AvgDec', 'AvgFlux', 'FluxErr', 'InstruMag', 'MaxPeak', 'a_Avg', 'b_Avg', 'thetaAvg']
     write_location = os.path.join(parent_dir, target_dir)
     print (files)
     for file in files:
@@ -38,9 +38,9 @@ def avg_flux(location, target_dir='Averaged', parent_dir='', identColumn='DataNu
         file = Table.read(file)
 
         num = 1
-        while num in file[identColumn]:
+        while num in file[ident_column]:
             # finds the rows in the file that match the current DataNum
-            matches = (file[identColumn] == num)
+            matches = (file[ident_column] == num)
             # print (matches)
 
             # makes a copy of the file that only contains the rows that match
@@ -50,20 +50,20 @@ def avg_flux(location, target_dir='Averaged', parent_dir='', identColumn='DataNu
             # print(num_in_avg)
 
             # makes sure there are enough points to matter
-            if num_in_avg > srcs:
+            if num_in_avg >= srcs:
                 # averages the data for the current DataNum
-                flux_avg = sum(file2[flux_name])/num_in_avg
+                flux_avg = sum(file2[flux_name]) / num_in_avg
                 max_peak = max(file2['peak'])
-                ra_avg = sum(file2['RA'])/num_in_avg
-                dec_avg = sum(file2['Dec'])/num_in_avg
+                ra_avg = sum(file2['RA']) / num_in_avg
+                dec_avg = sum(file2['Dec']) / num_in_avg
                 # make fractional square add root divide de-fractionalize
-                frac_errs = sum((file2['FluxErr']/file2['flux'])**2)
-                flux_err = ((sqrt(frac_errs))/num_in_avg)*flux_avg
-                inst_mag = -2.5*log10(flux_avg)
+                frac_errs = sum((file2['FluxErr'] / file2['flux'])**2)
+                flux_err = ((sqrt(frac_errs)) / num_in_avg) * flux_avg
+                inst_mag = -2.5 * log10(flux_avg)
 
-                a_avg = sum(file2['a'])/num_in_avg
-                b_avg = sum(file2['b'])/num_in_avg
-                theta_avg = sum(file2['theta'])/num_in_avg
+                a_avg = sum(file2['a']) / num_in_avg
+                b_avg = sum(file2['b']) / num_in_avg
+                theta_avg = sum(file2['theta']) / num_in_avg
 
                 # adds the new row to the table
                 # print (num, ra_avg, dec_avg, flux_avg, flux_err, num_in_avg)
@@ -73,6 +73,6 @@ def avg_flux(location, target_dir='Averaged', parent_dir='', identColumn='DataNu
 
         # write averaged table out to disk
         # print (new_table)
-        new_table.write(os.path.join(write_location, first_part+'(Avg).csv'))
+        new_table.write(os.path.join(write_location, first_part + '(Avg).csv'))
 
     return write_location
