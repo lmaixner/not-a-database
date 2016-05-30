@@ -15,6 +15,34 @@ def __init__(self, tstuff):
 
 
 def avg_flux(location, target_dir='Averaged', parent_dir='', ident_column='DataNum', flux_name='flux', srcs=1):
+    """Averages the flux by source for each filter.
+
+    Creates a directory in the location specified by parent_dir/target_dir,
+    averages the sources for each filter using the ident_column as a reference,
+    and saves the new file in the created folder.
+
+    Parameters
+    ------
+    location: file extension
+        where to retrieve data from for processing
+    target_dir: string, optional
+        name of the directory that it will place created files
+    parent_dir: string, optional
+        name of parent directory of where it will place files
+    ident_column: string, optional
+        table key, used as the identifier when averaging sources
+    flux_name: string, optional
+        table key, name of flux comun in data table if different
+    srcs: int, optional
+        source must appear at least this many times before it will be added to
+        the averaged table
+
+    Returns
+    ------
+    write_location: file extension
+        location the created files were saved
+    """
+
     mk_fldr(target_dir, parent_dir)
 
     files = glob.glob(location)
