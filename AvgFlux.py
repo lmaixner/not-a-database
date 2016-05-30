@@ -7,7 +7,7 @@ import glob
 import os
 from math import sqrt, log10
 from astropy.table import Table
-from GetGiantPileofSpreadsheets import mk_fldr
+from GetGiantPileofSpreadsheets import make_folder
 
 
 def __init__(self, tstuff):
@@ -17,9 +17,9 @@ def __init__(self, tstuff):
 def avg_flux(location, target_dir='Averaged', parent_dir='', ident_column='DataNum', flux_name='flux', srcs=1):
     """Averages the flux by source for each filter.
 
-    Creates a directory in the location specified by parent_dir/target_dir,
-    averages the sources for each filter using the ident_column as a reference,
-    and saves the new file in the created folder.
+    Creates a directory in the location specified by parent_dir/target_dir.
+    Averages the sources for each filter using the ident_column as a reference
+    and saves the new file with a reduced number of columns in the created folder.
 
     Parameters
     ------
@@ -43,16 +43,16 @@ def avg_flux(location, target_dir='Averaged', parent_dir='', ident_column='DataN
         location the created files were saved
     """
 
-    mk_fldr(target_dir, parent_dir)
+    make_folder(target_dir, parent_dir)
 
     files = glob.glob(location)
     # print (files)
     # what will be the names of the columns in the table created when
     column_names = [ident_column, 'NumSources', 'AvgRA', 'AvgDec', 'AvgFlux', 'FluxErr', 'InstruMag', 'MaxPeak', 'a_Avg', 'b_Avg', 'thetaAvg']
     write_location = os.path.join(parent_dir, target_dir)
-    print (files)
+    #print (files)
     for file in files:
-        print (file)
+        #print (file)
         # creates a new empty table to put the averaged data in
         new_table = Table(names=column_names)
         # print (file)
