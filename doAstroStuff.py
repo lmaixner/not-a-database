@@ -33,14 +33,14 @@ next_loc = write_tables(files, pileFileLocation, objectName)
 
 print("You are burried in a giant pile of spreadsheets... ")
 
-next_loc = group_by_filter(next_loc, objectName, filtersToUse, filteredFileLocation, objectName)
+next_loc = sort_photometry(next_loc, objectName, filtersToUse, filteredFileLocation, objectName)
 # location/name of target directory can be set but has default
 # can be sent a list of filters to go through but defaults to I,R,V,B filters
 
 print("They are now grouped by filter... ")
 
 
-next_loc = avg_flux(os.path.join(os.path.join(r'C:\Users\ShakAttack\Desktop\Everything\Class\Git', next_loc), '*Filt*'),AveragedLocation, objectName)
+next_loc = avg_photometry(os.path.join(os.path.join(r'C:\Users\ShakAttack\Desktop\Everything\Class\Git', next_loc), '*Filt*'),AveragedLocation, objectName)
 
 print("Filters have been averaged... ")
 
