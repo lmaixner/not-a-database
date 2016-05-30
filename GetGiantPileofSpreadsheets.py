@@ -1,3 +1,8 @@
+"""
+need to add targeting in make_folder for where the directory gets made then
+make the object name the parent directory for all the ones created by the
+program
+"""
 from __future__ import division, print_function
 
 import os
@@ -23,10 +28,21 @@ def __init__(self, tstuff):
     self.__stuff = tstuff
 
 
-def load_files(fileLocation):
-    """
-    Preconditions: Requires directory location of image files to be processed.
-    Postcontions: Returns files as an image ImageFileCollection.
+def load_photometry(file_location):
+    """Retrieves files from the given location that contain the correct keys.
+
+    Retrieves files with correct keys from the given file_location and returns
+    the files as an image ImageFileCollection.
+
+    Parameters
+    ------
+    file_location: file extension
+        location of the files to retrieve
+
+    Returns
+    ------
+    files: list of strings
+        list of filenames of files at the location that fit the conditions
     """
     keys = ['imagetyp', 'object', 'filter', 'exposure']
     files = ImageFileCollection(fileLocation, keywords=keys)
@@ -34,11 +50,32 @@ def load_files(fileLocation):
 
 
 def get_fluxes(object1, data1, iR, oR, G, rN):
-    """
-    Preconditions: Expects a sep extracted list of objects and the image data
-    the objectlist is from. Can also take the inner radius, outer radius,
-    gain, and read noise.
-    Postcontions: Returns the flux and flux error for each object in the list.
+    """Estimates the flux and flux error of given positions.
+
+    Uses a sep extracted array of objects and the image data that it's from to
+    estimate the flux at the points given by the array it's error.
+
+    Parameters
+    ------
+    object1: numpy array
+        array containing sep extracted object data including coordinates
+    data1: hdu data unit
+        image file from an hdu that will be referenced by the object array
+    iR: float
+        inner radius of the averaging annulus
+    oR: float
+        outer radius of the averaging annulus
+    G: float
+        gain of the telescope
+    rN: integer
+        read noise of the telescope
+
+    Returns
+    ------
+    flux: list of floats
+        flux values at the locations minus the background flux
+    fluxerr: lost of floats
+        amount of error in the flux calculations
     """
 
     flux, fluxerr, flag = sep.sum_circle(data1, object1['x'], object1['y'], 16.0, bkgann=(iR, oR), gain=G, err=rN)
@@ -49,6 +86,18 @@ def get_fluxes(object1, data1, iR, oR, G, rN):
 def mk_fldr(target_dir, parent_dir = ''):
     """ need to add targeting for where the directory gets made then make the object name the parent directory for all the ones created by the program
     Creates a folder with the name given.
+    """Creates a folder with the name given.
+
+    Creates a directory in the location specified by parent_dir/target_dir. If
+    there is no parent_dir specified only a target_dir will be created. If the
+    parent_dir does not exist yet it will apso be created.
+
+    Parameters
+    ------
+    target_dir: string
+        name of the folder to create
+    parent_dir: string, optional
+        name of parent folder if you want there to ge one
     """
     if parent_dir == '':
         try:
@@ -71,12 +120,38 @@ def mk_fldr(target_dir, parent_dir = ''):
 
 def write_tables(ic1, target_dir='output', obj_name='M71', I=__inner_rad__, O=__outer_rad__, G=__t_gain__, N=__read_noise__):
     """
-    Preconditions: Requires an image collection and a directory location to
-    put the created files.  Requires the name of the object for hdu to use.
-    Can also take the inner radius, outer radius, gain, and read noise.
-    Postconditions: Writes csv tables containing the information from each
-    image with added columns for RA, Dec, flux , fluxerr, InnerRad, OuterRad,
-    Gain, ReadNoise, and Filter.
+
+    Creates a directory in the location specified by obj_name/target_dir to
+    save the files it creates. Finds sources that are significantly brighter
+    than the background flux and uses their locations as the object list. Finds
+    the flux minus background and flux error at these points and adds these as
+    columns to the data table. Calculates the RA/Dec at these poisitions and
+    adds these to the table along with InnerRad, OuterRad, Gain, ReadNoise, and
+    Filter. Writes the tables with the added columns as .csv files under the
+    same name as the image they same from in the location that was created for
+    them.
+
+    Parameters
+    ------
+    ic1: list of strings
+        list of filenames containing data to be analyzed
+    target_dir: string, optional
+        name of the directory that it will place created files
+    parent_dir: string, optional
+        name of parent directory of where it will place files
+    I: float
+        inner radius of the averaging annulus
+    O: float
+        outer radius of the averaging annulus
+    G: float
+        gain of the telescope
+    N: integer
+        read noise of the telescope
+
+    Returns
+    ------
+    write_location: file extension
+        location the created files were saved
     """
     # creates a folder to put the created files
     mk_fldr(target_dir, obj_name)
