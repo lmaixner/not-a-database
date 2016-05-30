@@ -23,7 +23,7 @@ LongWavelength = r'*I*.csv'
 ShortWavelength = r'*R*.csv'
 
 
-files = load_files(sourceFilesLocation)
+files = load_photometry(sourceFilesLocation)
 
 print("Files are loaded... ")
 
