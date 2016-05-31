@@ -1,7 +1,7 @@
-from GetGiantPileofSpreadsheets import *
-from SortGiantPileofSpreadsheets import *
-from AvgFlux import *
-from CMD import *
+from load_photometry import *
+from sort_photometry import *
+from avg_photometry import *
+from make_CMD import *
 import os
 
 # Location of Source Images

@@ -3,7 +3,7 @@ from __future__ import division, print_function, absolute_import
 import os
 
 import glob
-from SortGiantPileofSpreadsheets import assign_id
+from sort_photometry import assign_id
 import numpy as np
 from astropy.table import Table
 import matplotlib.pyplot as plt

@@ -6,7 +6,7 @@ import glob
 from astropy.table import Table, Column, vstack
 from astropy.coordinates import SkyCoord
 from astropy import units as u
-from GetGiantPileofSpreadsheets import make_folder
+from load_photometry import make_folder
 
 
 def __init__(self, tstuff):

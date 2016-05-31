@@ -7,7 +7,7 @@ import glob
 import os
 from math import sqrt, log10
 from astropy.table import Table
-from GetGiantPileofSpreadsheets import make_folder
+from load_photometry import make_folder
 
 
 def __init__(self, tstuff):
