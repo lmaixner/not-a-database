@@ -153,9 +153,11 @@ def write_tables(ic1, target_dir='output', obj_name='M71', plot_graph=False, I=_
     """
     # creates a folder to put the created files
     make_folder(target_dir, obj_name)
-    write_location = os.path.join(obj_name, target_dir)
+    write_location = os.path.join(os.getcwd(), os.path.join(obj_name, target_dir))
 
     for hdu, fname in ic1.hdus(imagetyp='light', object=obj_name, return_fname=True):
+    # add filtervalue = 'R' <-- value you're looking for instead of relying on the filename and add the filterletter.csv to the end of the filename
+    # would have to itterate over each filter color
         # made 'object' above a variable, hope it still works
         header = hdu.header
         data = hdu.data

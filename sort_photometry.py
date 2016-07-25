@@ -13,7 +13,7 @@ def __init__(self, tstuff):
     self.__stuff = tstuff
 
 
-def assign_id(file1, file2, RA='RA', Dec='Dec', search_range=.5):
+def assign_id(file1, file2, RA1='RA', Dec1='Dec', RA2='RA', Dec2='Dec', search_range=.5):
     """Compares two files and fills the DataNum column of the smaller file.
 
     Fills the DataNum column in the second file with the DataNum of the closest
@@ -25,10 +25,14 @@ def assign_id(file1, file2, RA='RA', Dec='Dec', search_range=.5):
         file containing more data sources and DataNum column filled
     file2: astropy table
         file to have DataNum column matched to file1
-    RA: string, optional
-        table key, name of column holding Right Ascension data
-    Dec: string, optional
-        table key, name of column holding Declination data
+    RA1: string, optional
+        table key, name of column holding Right Ascension data for file1
+    Dec1: string, optional
+        table key, name of column holding Declination data for file1
+    RA2: string, optional
+        table key, name of column holding Right Ascension data for file2
+    Dec2: string, optional
+        table key, name of column holding Declination data for file2
 
     Returns
     ------
@@ -36,11 +40,11 @@ def assign_id(file1, file2, RA='RA', Dec='Dec', search_range=.5):
         the DataNum column will be filled with the DataNum of the closest
         source from the other table
     """
-    ra1 = file1[RA]
-    dec1 = file1[Dec]
+    ra1 = file1[RA1]
+    dec1 = file1[Dec1]
 
-    ra2 = file2[RA]
-    dec2 = file2[Dec]
+    ra2 = file2[RA2]
+    dec2 = file2[Dec2]
 
     # returns two catalogs comparing file2 to file 1
     catalog = SkyCoord(ra=ra1 * u.degree, dec=dec1 * u.degree)
@@ -59,9 +63,9 @@ def assign_id(file1, file2, RA='RA', Dec='Dec', search_range=.5):
     # apply file1's dataname to file2's dataname at the indexes specified by
     # idx2
     file2['DataNum'][good_matches] = file1['DataNum'][idx2]
+    file2['DataNum'][~good_matches] = 0000
     # now have 2 files with the DataName column matching for stars with RA/Dec
-    # close enough
-
+    # radius
     return file2
 
 
@@ -157,8 +161,8 @@ def f_group(filename):
 
     Parameters
     ------
-    filename: file extension... glob mask?
-        location of the files to be used?
+    filename: string
+        glob mask used to retrieve filenames
 
     Returns
     ------
@@ -196,7 +200,8 @@ def sort_photometry(f_ext, object, filters=None, target_dir='Sorted', parent_dir
     object: string
         name of the object the images are of for naming the output files
     filters: list of strings, optional
-        filter colors grouping will be done for, default value is ['I', 'R', 'V', 'B']
+        filter colors grouping will be done for, default value is
+        ['I', 'R', 'V', 'B']
     target_dir: string, optional
         name of the directory that it will place created files
     parent_dir: string, optional
@@ -212,16 +217,16 @@ def sort_photometry(f_ext, object, filters=None, target_dir='Sorted', parent_dir
         filters = ['I', 'R', 'V', 'B']
 
     make_folder(target_dir, parent_dir)
-    write_location = os.path.join(parent_dir, target_dir)
+    write_location = os.path.join(os.getcwd(), os.path.join(parent_dir, target_dir))
 
     # f_ext is where I'm trying to grab the files from
-    pattern = f_ext + '\*{}.csv'
-
+    pattern = os.path.join(f_ext, '*{}.csv')
     # send all the files to f_group for each filter
     for filter in filters:
+        #sends f_group: f_ext + '\*I.csv'  each filter in the list
         big_file = f_group(pattern.format(filter))
 
         # outputs table of located object's info in .csv format
-        big_file.write(os.path.join(write_location, object + filter + 'Filt.csv'))
+        big_file.write(os.path.join(write_location, object + 'Filt' + filter + '.csv'))
 
     return write_location

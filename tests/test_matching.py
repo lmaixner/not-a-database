@@ -7,8 +7,7 @@ import pytest
 import numpy as np
 
 from astropy.table import Table
-
-from SortGiantPileofSpreadsheets import f_group
+from ..sort_photometry import f_group
 
 
 def data_directory():

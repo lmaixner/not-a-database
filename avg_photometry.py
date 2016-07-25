@@ -19,7 +19,8 @@ def avg_photometry(location, target_dir='Averaged', parent_dir='', ident_column=
 
     Creates a directory in the location specified by parent_dir/target_dir.
     Averages the sources for each filter using the ident_column as a reference
-    and saves the new file with a reduced number of columns in the created folder.
+    and saves the new file with a reduced number of columns in the created
+    folder.
 
     Parameters
     ------
@@ -46,21 +47,18 @@ def avg_photometry(location, target_dir='Averaged', parent_dir='', ident_column=
     make_folder(target_dir, parent_dir)
 
     files = glob.glob(location)
-    # print (files)
     # what will be the names of the columns in the table created when
     column_names = [ident_column, 'NumSources', 'AvgRA', 'AvgDec', 'AvgFlux', 'FluxErr', 'InstruMag', 'MaxPeak', 'a_Avg', 'b_Avg', 'thetaAvg']
-    write_location = os.path.join(parent_dir, target_dir)
-    #print (files)
+
+    write_location = os.path.join(os.getcwd(), os.path.join(parent_dir, target_dir))
+
     for file in files:
-        #print (file)
         # creates a new empty table to put the averaged data in
         new_table = Table(names=column_names)
-        # print (file)
 
         # retrieve file name minus extension and location for later use
         base_name = os.path.basename(file)
         first_part, _ = os.path.splitext(base_name)
-        # print (first_part)
 
         # read file as table
         file = Table.read(file)
@@ -69,13 +67,11 @@ def avg_photometry(location, target_dir='Averaged', parent_dir='', ident_column=
         while num in file[ident_column]:
             # finds the rows in the file that match the current DataNum
             matches = (file[ident_column] == num)
-            # print (matches)
 
             # makes a copy of the file that only contains the rows that match
             # the desired DataNum
             file2 = file[matches]
             num_in_avg = len(file2)
-            # print(num_in_avg)
 
             # makes sure there are enough points to matter
             if num_in_avg >= srcs:
@@ -100,7 +96,6 @@ def avg_photometry(location, target_dir='Averaged', parent_dir='', ident_column=
             num += 1  # increment counter
 
         # write averaged table out to disk
-        # print (new_table)
-        new_table.write(os.path.join(write_location, first_part + '(Avg).csv'))
+        new_table.write(os.path.join(write_location, 'Avg' + first_part + '.csv'))
 
     return write_location
