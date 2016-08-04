@@ -7,6 +7,7 @@ from astropy.table import Table, Column, vstack
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 from load_photometry import make_folder
+from new_sort import *
 
 
 def __init__(self, tstuff):
@@ -40,6 +41,8 @@ def assign_id(file1, file2, RA1='RA', Dec1='Dec', RA2='RA', Dec2='Dec', search_r
         the DataNum column will be filled with the DataNum of the closest
         source from the other table
     """
+    print('file1 assign_id\n', file1)
+    print('file2 assign_id\n', file2)
     ra1 = file1[RA1]
     dec1 = file1[Dec1]
 
@@ -59,14 +62,20 @@ def assign_id(file1, file2, RA1='RA', Dec1='Dec', RA2='RA', Dec2='Dec', search_r
 
     # get all matches that are within 2 arcsec of the target
     idx2 = idx[good_matches]
-
+    #print('idx2\n', idx2)
     # apply file1's dataname to file2's dataname at the indexes specified by
     # idx2
+    # where good_matches is true file2['DataNum'] is changes to the value at
+    # the location in file1['DataNum'] referenced by idx2
+    print('file1[DataNum] before array matching', file1['DataNum'])
+    print('good_matches', good_matches)
     file2['DataNum'][good_matches] = file1['DataNum'][idx2]
-    file2['DataNum'][~good_matches] = 0000
+    # everywhere good_matches is False file2['DataNum'] is changed to zeros
+    file2['DataNum'][~good_matches] = 00000000000
     # now have 2 files with the DataName column matching for stars with RA/Dec
     # radius
-    return file2
+    print('file2 assign_id end\n', file2)
+    return file2 
 
 
 def sort_files(files):
@@ -140,7 +149,7 @@ def sort_files(files):
         n_objects2 = len(file2)
         # adds a DataNum Column to the table with 0000 values to be matched to
         # file1 values
-        dataNum2_col = Column(data=[0000] * n_objects2, name='DataNum')
+        dataNum2_col = Column(data=[0000000000] * n_objects2, name='DataNum')
         cur_file.add_column(dataNum2_col)
         fileName_col = Column(data=[fileNames[ct]] * n_objects2, name='SourceFile')
         cur_file.add_column(fileName_col)
@@ -172,15 +181,19 @@ def f_group(filename):
 
     files = glob.glob(filename)
 
-    file1, files2 = sort_files(files)
+    #file1, files2 = sort_files(files)
+    files2 = assign_dataNum(files)
 
     # creates new csv file to pile all the new files onto
-    big_file = file1
+    big_file = files2.pop(0)  #file1
+    #print(big_file)
     # and add all files to big_file
     for file in files2:
         big_file = vstack([big_file, file], join_type='exact')
 
-    return big_file
+    big_file2 = assign_id2(big_file)
+
+    return big_file2
 
 
 def sort_photometry(f_ext, object, filters=None, target_dir='Sorted', parent_dir=''):

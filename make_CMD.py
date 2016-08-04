@@ -71,23 +71,25 @@ def make_CMD(extension, short_w, long_w, cluster_members=False, member_RA="RA",
     long_w_table = Table.read(long_w_file[0])
 
     # change ID in one of the lists so they are the same for given RA/Dec
+    print('assigning ids to long based on short')
     long_w_table = assign_id(short_w_table, long_w_table, 'AvgRA', 'AvgDec', 'AvgRA', 'AvgDec')
 
     # send through matching function in Sort module to make the DataNum's match
     #long_w_table.pprint(max_lines=10)
     #short_w_table.pprint(max_lines=-1)
+    print('matching short to long\n')
     short_w_table = match(short_w_table, long_w_table)
+    print('matching long to short\n')
     long_w_table = match(long_w_table, short_w_table)
-
+    print("short", len(short_w_table))
+    print("long", len(long_w_table))
     # use cluster membership list to exclude sources not part of the target
     extra_long = 0
     extra_short = 0
     if cluster_members is not False:
         # if not given a membership list skips matching
-        short_w_table, extra_short = sort_cluster(short_w_table, member_RA,
-            member_Dec, prob_col, cluster_members, threshold)
-        long_w_table, extra_long = sort_cluster(long_w_table, member_RA,
-            member_Dec, prob_col, cluster_members, threshold)
+        short_w_table, extra_short = sort_cluster(short_w_table, member_RA, member_Dec, prob_col, cluster_members, threshold)
+        long_w_table, extra_long = sort_cluster(long_w_table, member_RA, member_Dec, prob_col, cluster_members, threshold)
 
         # send through matching again to ensure tables are same length
         short_w_table = match(short_w_table, long_w_table)
@@ -156,7 +158,17 @@ def match(first, second):
     """
     # creates a set of the DataNum's that are in both groups
     newset = set(first["DataNum"]) & set(second["DataNum"])
-    newset = np.array(sorted(list(newset))).astype(int)
+    print('newset', len(newset))
+    print('first', len(first))
+    print('second', len(second))
+
+    newset = np.array(sorted(list(newset)))
+    #print('newset array \n', newset)
+    newset.astype(int)
+    #print('newset int \n', newset)
+    #newset = abs(newset)
+    print('avg newset = ', sum(newset)/len(newset))
+    #print(newset)
     matches = []
     for i in first["DataNum"]:
         # makes a true false array to map to the first data set
@@ -169,7 +181,7 @@ def match(first, second):
     # matches is True
     matches = np.array(matches)
     first = first[matches]
-
+    print('match is returning first with a size of: ', len(first), '\n')
     return first
 
 
@@ -235,6 +247,7 @@ def sort_cluster(source_list, member_RA_col, member_Dec_col, member_prob_col, me
     member_list.add_column(dataNum_col)
 
     # fill DataNum column by matching cluster membership list to source list
+    print('assigning ids to member_list\n')
     member_list = assign_id(source_list, member_list, RA1='AvgRA', Dec1='AvgDec', RA2=member_RA_col, Dec2=member_Dec_col)
 
     # create list of sources that are not members of the cluster
@@ -254,8 +267,10 @@ def sort_cluster(source_list, member_RA_col, member_Dec_col, member_prob_col, me
     non_member_sources = source_list[non_member_matches]
 
     # restrict source_list to those values that are also in member_list
+    print('matching source_list to member_list\n')
     member_sources = match(source_list, member_list)
 
     #print('non_member_sources = ', len(non_member_sources))
+    print('member_sources: length ', len(member_sources), '\n', member_sources)
 
     return member_sources, non_member_sources

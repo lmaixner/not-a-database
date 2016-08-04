@@ -63,8 +63,12 @@ def avg_photometry(location, target_dir='Averaged', parent_dir='', ident_column=
         # read file as table
         file = Table.read(file)
 
-        num = 1
-        while num in file[ident_column]:
+        dataNum_list = []
+        for row in file:
+            if row[ident_column] not in dataNum_list:
+                dataNum_list.append(row[ident_column])
+
+        for num in dataNum_list:
             # finds the rows in the file that match the current DataNum
             matches = (file[ident_column] == num)
 
@@ -93,7 +97,10 @@ def avg_photometry(location, target_dir='Averaged', parent_dir='', ident_column=
                 # print (num, ra_avg, dec_avg, flux_avg, flux_err, num_in_avg)
                 row = [num, num_in_avg, ra_avg, dec_avg, flux_avg, flux_err, inst_mag, max_peak, a_avg, b_avg, theta_avg]
                 new_table.add_row(row)
-            num += 1  # increment counter
+                #num += 1  # increment counter
+
+        #print(new_table[ident_column, 'NumSources'])
+        #print(max(new_table['NumSources']))
 
         # write averaged table out to disk
         new_table.write(os.path.join(write_location, 'Avg' + first_part + '.csv'))
