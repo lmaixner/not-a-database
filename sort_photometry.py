@@ -75,7 +75,7 @@ def assign_id(file1, file2, RA1='RA', Dec1='Dec', RA2='RA', Dec2='Dec', search_r
     # now have 2 files with the DataName column matching for stars with RA/Dec
     # radius
     print('file2 assign_id end\n', file2)
-    return file2 
+    return file2
 
 
 def sort_files(files):
@@ -131,7 +131,7 @@ def sort_files(files):
     n_objects1 = len(file1)
     # adds a DataNum Column to the table with sequential values to be match to
     # the rest of the files
-    dataNum1_col = Column(data=range(1, n_objects1 + 1), name='DataNum')
+    dataNum1_col = Column(data=range(1, n_objects1 + 1), name='DataNum', dtype=int64)
     file1.add_column(dataNum1_col)
     # adds a SourceFile Column to the table
     fileName_col = Column(data=[fileNames[ind]] * n_objects1, name='SourceFile')
@@ -149,7 +149,7 @@ def sort_files(files):
         n_objects2 = len(file2)
         # adds a DataNum Column to the table with 0000 values to be matched to
         # file1 values
-        dataNum2_col = Column(data=[0000000000] * n_objects2, name='DataNum')
+        dataNum2_col = Column(data=[0000000000] * n_objects2, name='DataNum', dtype=int64)
         cur_file.add_column(dataNum2_col)
         fileName_col = Column(data=[fileNames[ct]] * n_objects2, name='SourceFile')
         cur_file.add_column(fileName_col)

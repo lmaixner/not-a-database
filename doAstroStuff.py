@@ -24,10 +24,11 @@ location_ext = r'C:\Users\ShakAttack\Desktop\Everything\Class\Git\M71\Averaged'
 LongWavelength = 'I'
 ShortWavelength = 'V'
 membership = r'C:\Users\ShakAttack\Desktop\Everything\Class\Git\MembershipLists\M71MembershipList.csv'
-# if they're somethign different from what they normally would be
+# if they're something different from what they normally would be
 member_col_RA = "RA"
 member_col_Dec = "Dec"
 
+"""
 ### MAIN ###
 files = load_photometry(sourceFilesLocation)
 print("Files are loaded... ")
@@ -44,9 +45,8 @@ sorted_loc = sort_photometry('M71\output', objectName, filtersToUse, filteredFil
 # can be sent a list of filters to go through but defaults to I,R,V,B filters
 
 print("They are now grouped by filter... ")
-
+"""
 avged_loc = avg_photometry(os.path.join(os.path.join(r'C:\Users\ShakAttack\Desktop\Everything\Class\Git', 'M71\Sorted'), '*Filt*'), AveragedLocation, objectName)
-
 #print(avged_loc)
 
 print("Filters have been averaged... ")

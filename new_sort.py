@@ -2,6 +2,7 @@ from astropy.table import Table, Column
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 import os
+import numpy as np
 
 def __init__(self, tstuff):
     self.__stuff = tstuff
@@ -38,6 +39,7 @@ def assign_dataNum(files):
     # run through the rest of the files, adds Filename and DataNum column and
     # assigns them DataNums concurrent with file1's
     ct = 0
+    DataStart = 1000000
     new_files2 = []
     for file in new_files:
         base_name = os.path.basename(file)
@@ -45,15 +47,17 @@ def assign_dataNum(files):
         # imports file as numpy Table
         n_objects = len(file)
 
-        DataNums = []
-        for row in file:
-            new_iden = str(int(row['RA'] * 1000)) + str(int(row['Dec'] * 1000))
-            #print(new_iden)
-            DataNums.append(new_iden)
+        #DataNums = []
+        #for row in file:
+        #    new_iden = str(int(row['RA'] * 10000)) + str(int(row['Dec'] * 10000))
+        #    #print(new_iden)
+        #    DataNums.append(new_iden)
 
         # adds a DataNum Column to the table with 0000 values to be matched to
         # file1 values
-        dataNum2_col = Column(data=DataNums, name='DataNum')
+        n_objects = len(file)  ###
+        dataNum2_col = Column(data=range(DataStart, n_objects + DataStart), name='DataNum', dtype=np.int64)  ###
+        #dataNum2_col = Column(data=DataNums, name='DataNum', dtype=np.int64)
         file.add_column(dataNum2_col)
         #n_objects = len(DataNums)
         fileName_col = Column(data=[base_name] * n_objects, name='SourceFile')
@@ -61,6 +65,7 @@ def assign_dataNum(files):
 
         #new_files[ct] = assign_id(file1, cur_file)
         ct += 1
+        DataStart += n_objects
         #print(file)
         new_files2.append(file)
     # print(Table.read(new_files[0]))#['DataNum']))
@@ -69,7 +74,7 @@ def assign_dataNum(files):
 
 
 def assign_id2(file1, RA1='RA', Dec1='Dec', search_range=.5):
-    """Compares two files and fills the DataNum column of the smaller file.
+    """Compares RA/Decs within a file and fills the DataNum column of the smaller file.
 
     Fills the DataNum column in the second file with the DataNum of the closest
     RA/Dec match within the given arcsecond range in the first file.

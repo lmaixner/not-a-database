@@ -92,10 +92,12 @@ def make_CMD(extension, short_w, long_w, cluster_members=False, member_RA="RA",
         long_w_table, extra_long = sort_cluster(long_w_table, member_RA, member_Dec, prob_col, cluster_members, threshold)
 
         # send through matching again to ensure tables are same length
+        print("matching short_w_table and long_w_table")
         short_w_table = match(short_w_table, long_w_table)
         long_w_table = match(long_w_table, short_w_table)
 
         # matches field stars to ensure tables are the same length
+        print("matching extra_short and extra_long")
         extra_short = match(extra_short, extra_long)
         extra_long = match(extra_long, extra_short)
 
@@ -163,12 +165,13 @@ def match(first, second):
     print('second', len(second))
 
     newset = np.array(sorted(list(newset)))
-    #print('newset array \n', newset)
     newset.astype(int)
-    #print('newset int \n', newset)
-    #newset = abs(newset)
-    print('avg newset = ', sum(newset)/len(newset))
-    #print(newset)
+
+    first.sort("DataNum")
+    first['DataNum', 'AvgRA', 'AvgDec'].pprint(max_lines=-1)
+    #print(first["DataNum"])
+    print(newset)
+
     matches = []
     for i in first["DataNum"]:
         # makes a true false array to map to the first data set
@@ -177,9 +180,10 @@ def match(first, second):
         else:
             matches.append(False)
 
-    # converts matches to and array and limits first to the locations where
-    # matches is True
+    # converts matches to an array and limits 'first' to the locations where
+    # 'matches' is True
     matches = np.array(matches)
+    #print("T/F matches array \n", matches)
     first = first[matches]
     print('match is returning first with a size of: ', len(first), '\n')
     return first

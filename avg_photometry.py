@@ -8,6 +8,7 @@ import os
 from math import sqrt, log10
 from astropy.table import Table
 from load_photometry import make_folder
+from new_sort import assign_id2
 
 
 def __init__(self, tstuff):
@@ -62,19 +63,24 @@ def avg_photometry(location, target_dir='Averaged', parent_dir='', ident_column=
 
         # read file as table
         file = Table.read(file)
-
+        #len1 = len(file)
+        #file = assign_id2(file)
+        #len2 = len(file)
         dataNum_list = []
+        #print(len1, "should be longer than ", len2)
         for row in file:
             if row[ident_column] not in dataNum_list:
                 dataNum_list.append(row[ident_column])
 
         for num in dataNum_list:
-            # finds the rows in the file that match the current DataNum
+            # finds the rows in the file where RA/Dec match the current DataNum
             matches = (file[ident_column] == num)
+            #print(file[ident_column] == num)
 
             # makes a copy of the file that only contains the rows that match
             # the desired DataNum
             file2 = file[matches]
+            #print(file2)
             num_in_avg = len(file2)
 
             # makes sure there are enough points to matter
