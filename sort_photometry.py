@@ -9,6 +9,7 @@ from astropy import units as u
 from load_photometry import make_folder
 from new_sort import *
 
+#import pdb; pdb.set_trace() #debuger
 
 def __init__(self, tstuff):
     self.__stuff = tstuff
@@ -191,9 +192,10 @@ def f_group(filename):
     for file in files2:
         big_file = vstack([big_file, file], join_type='exact')
 
-    big_file2 = assign_id2(big_file)
+    # match DataNums within file before returning list
+    matched_big_file = assign_id2(big_file)
 
-    return big_file2
+    return matched_big_file
 
 
 def sort_photometry(f_ext, object, filters=None, target_dir='Sorted', parent_dir=''):

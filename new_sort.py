@@ -34,7 +34,6 @@ def assign_dataNum(files):
         added to each table
     """
     new_files = list(files)
-    #new_files2 = list(new_files)  # duplicate list
 
     # run through the rest of the files, adds Filename and DataNum column and
     # assigns them DataNums concurrent with file1's
@@ -47,19 +46,10 @@ def assign_dataNum(files):
         # imports file as numpy Table
         n_objects = len(file)
 
-        #DataNums = []
-        #for row in file:
-        #    new_iden = str(int(row['RA'] * 10000)) + str(int(row['Dec'] * 10000))
-        #    #print(new_iden)
-        #    DataNums.append(new_iden)
-
-        # adds a DataNum Column to the table with 0000 values to be matched to
-        # file1 values
-        n_objects = len(file)  ###
+        # adds a DataNum Column to the table with sequential values
+        n_objects = len(file)
         dataNum2_col = Column(data=range(DataStart, n_objects + DataStart), name='DataNum', dtype=np.int64)  ###
-        #dataNum2_col = Column(data=DataNums, name='DataNum', dtype=np.int64)
         file.add_column(dataNum2_col)
-        #n_objects = len(DataNums)
         fileName_col = Column(data=[base_name] * n_objects, name='SourceFile')
         file.add_column(fileName_col)
 
@@ -69,7 +59,6 @@ def assign_dataNum(files):
         #print(file)
         new_files2.append(file)
     # print(Table.read(new_files[0]))#['DataNum']))
-    #print(new_files2)
     return new_files2
 
 
@@ -98,6 +87,8 @@ def assign_id2(file1, RA1='RA', Dec1='Dec', search_range=.5):
         the DataNum column will be filled with the DataNum of the closest
         source from the other table
     """
+    #import pdb; pdb.set_trace() #debuger
+
     ra1 = file1[RA1]
     dec1 = file1[Dec1]
 
@@ -107,22 +98,47 @@ def assign_id2(file1, RA1='RA', Dec1='Dec', search_range=.5):
     # returns two catalogs comparing file2 to file 1
     catalog = SkyCoord(ra=ra1 * u.degree, dec=dec1 * u.degree)
     c = SkyCoord(ra=ra1 * u.degree, dec=dec1 * u.degree)
-    idx, d2d, d3d = c.match_to_catalog_sky(catalog)  # changed from .3d
+    #fake_c = c[:10]
+    #idxcatalog, idxc, d2d, d3d = fake_c.search_around_sky(catalog, 10*u.arcsec)
+    #idx, d2d, d3d = c.match_to_catalog_sky(catalog) 
     # some of the matches are likely to be duplicates and not within a
     # reasonable distance to be the same star
 
+    # array of objects that are within search_range of c[i]
+    idxc, idxcatalog, d2d, d3d = catalog.search_around_sky(c, search_range * u.arcsec)
+    #print(d2d)
+    
+    matched_rows = []
+    for n in set(idxc):
+        if n not in matched_rows:
+            good_matches = np.array(idxc == n)
+            #np.set_printoptions(threshold=np.nan)
+            #print(good_matches)
+            if good_matches.sum() > 1: #when I remove this if statement (or change the 1 to 0) all the dataNums are altered but there's a weird error, must check smaller data set
+                #print('file1 DataNum before', file1['DataNum'][idxcatalog][good_matches])
+                file1['DataNum'][idxcatalog[good_matches]] = str(n + 100000)
+                #print('file1 DataNum after', file1['DataNum'][idxcatalog][good_matches])
+                for i in idxcatalog[good_matches]:
+                    matched_rows.append(i)
+                #print("matched rows", matched_rows)
     # return an array of true's and false's where match is within specified
     # range (.5 arcsec is best)
-    good_matches = d2d < search_range * u.arcsec
+    #good_matches = d2d < search_range * u.arcsec
+    #good_matches = file2 == d2d
 
-    # get all matches that are within 2 arcsec of the target
-    idx2 = idx[good_matches]
+    # get all matches that are within 'search_range' of the target
+    #idx2 = idx[good_matches]
 
     # apply file1's dataname to file2's dataname at the indexes specified by
     # idx2
-    file1['DataNum'][good_matches] = file2['DataNum'][idx2]
-    file1['DataNum'][~good_matches] = 00000000000
+    # new_rows = file1['DataNum'][good_matches]
+    #file1['DataNum'][~good_matches] = 00000000000
     # now have 2 files with the DataName column matching for stars with RA/Dec
     # radius
+
+    # if idxc = 0 then I want the row at the index coresponding to it in idxcatalog to change to the new data num
+    # keep a list of the indecies that have been matched instead of removing them from the table
+    # add table lines
+
     #print('file1 after \n', file1['DataNum', RA1, Dec1])
     return file1

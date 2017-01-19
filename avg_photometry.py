@@ -8,7 +8,7 @@ import os
 from math import sqrt, log10
 from astropy.table import Table
 from load_photometry import make_folder
-from new_sort import assign_id2
+#from new_sort import assign_id2
 
 
 def __init__(self, tstuff):
@@ -53,57 +53,64 @@ def avg_photometry(location, target_dir='Averaged', parent_dir='', ident_column=
 
     write_location = os.path.join(os.getcwd(), os.path.join(parent_dir, target_dir))
 
-    for file in files:
+    for unread_file in files:
         # creates a new empty table to put the averaged data in
         new_table = Table(names=column_names)
 
         # retrieve file name minus extension and location for later use
-        base_name = os.path.basename(file)
+        base_name = os.path.basename(unread_file)
         first_part, _ = os.path.splitext(base_name)
 
         # read file as table
-        file = Table.read(file)
+        file = Table.read(unread_file)
         #len1 = len(file)
         #file = assign_id2(file)
         #len2 = len(file)
-        dataNum_list = []
+
+        #dataNum_list = []
         #print(len1, "should be longer than ", len2)
-        for row in file:
-            if row[ident_column] not in dataNum_list:
-                dataNum_list.append(row[ident_column])
+        #for row in file:
+        #    if row[ident_column] not in dataNum_list:
+        #        dataNum_list.append(row[ident_column])
 
-        for num in dataNum_list:
-            # finds the rows in the file where RA/Dec match the current DataNum
-            matches = (file[ident_column] == num)
-            #print(file[ident_column] == num)
+        #for num in dataNum_list:
+        for num in range(1000000, 1000000 + len(file[ident_column])):
+            if num in file[ident_column]:
+                # finds the rows in the file where RA/Dec match the current DataNum
+                matches = (file[ident_column] == num)
+                #print(len(matches))
+                #print(file[ident_column] == num)
 
-            # makes a copy of the file that only contains the rows that match
-            # the desired DataNum
-            file2 = file[matches]
-            #print(file2)
-            num_in_avg = len(file2)
+                # makes a copy of the file that only contains the rows that match
+                # the desired DataNum
+                file2 = file[matches]
+                #print(file2)
+                num_in_avg = len(file2)
 
-            # makes sure there are enough points to matter
-            if num_in_avg >= srcs:
-                # averages the data for the current DataNum
-                flux_avg = sum(file2[flux_name]) / num_in_avg
-                max_peak = max(file2['peak'])
-                ra_avg = sum(file2['RA']) / num_in_avg
-                dec_avg = sum(file2['Dec']) / num_in_avg
-                # make fractional square add root divide de-fractionalize
-                frac_errs = sum((file2['FluxErr'] / file2['flux'])**2)
-                flux_err = ((sqrt(frac_errs)) / num_in_avg) * flux_avg
-                inst_mag = -2.5 * log10(flux_avg)
+                # makes sure there are enough points to matter
+                if num_in_avg > srcs - 1: #######################################################################################################!!!!!!!!!!
+                    # averages the data for the current DataNum
+                    flux_avg = sum(file2[flux_name]) / num_in_avg
+                    max_peak = max(file2['peak'])
+                    ra_avg = sum(file2['RA']) / num_in_avg
+                    dec_avg = sum(file2['Dec']) / num_in_avg
+                    # make fractional square add root divide de-fractionalize
+                    frac_errs = sum((file2['FluxErr'] / file2['flux'])**2)
+                    flux_err = ((sqrt(frac_errs)) / num_in_avg) * flux_avg
+                    inst_mag = -2.5 * log10(flux_avg)
 
-                a_avg = sum(file2['a']) / num_in_avg
-                b_avg = sum(file2['b']) / num_in_avg
-                theta_avg = sum(file2['theta']) / num_in_avg
+                    a_avg = sum(file2['a']) / num_in_avg
+                    b_avg = sum(file2['b']) / num_in_avg
+                    theta_avg = sum(file2['theta']) / num_in_avg
 
-                # adds the new row to the table
-                # print (num, ra_avg, dec_avg, flux_avg, flux_err, num_in_avg)
-                row = [num, num_in_avg, ra_avg, dec_avg, flux_avg, flux_err, inst_mag, max_peak, a_avg, b_avg, theta_avg]
-                new_table.add_row(row)
-                #num += 1  # increment counter
+                    # adds the new row to the table
+                    # print (num, ra_avg, dec_avg, flux_avg, flux_err, num_in_avg)
+                    row = [num, num_in_avg, ra_avg, dec_avg, flux_avg, flux_err, inst_mag, max_peak, a_avg, b_avg, theta_avg]
+                    #print(row)
+                    new_table.add_row(row)
+                    num += 1  # increment counter
+            else:
+                num += 1  # increment counter
 
         #print(new_table[ident_column, 'NumSources'])
         #print(max(new_table['NumSources']))
