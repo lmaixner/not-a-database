@@ -8,15 +8,13 @@ def __init__(self, tstuff):
     self.__stuff = tstuff
 
 def assign_dataNum(files):
-    """Finds the longest file in the list and separates it, also adds two columns.
+    """Adds two columns and sequentially labels all data poitns.
 
-    Searches the list of files for the longest file, removes it to be the
-    comparison file, and creates a shorter list with the longest file removed.
-    It adds the SourceFile and DataNum columns to each file which combined
+    Adds the SourceFile and DataNum columns to each file which combined
     identify the source and its image once the files are combined later.
     The Source file column is filed with the name of the file and the DataNum
-    column is filled with zeros except for the longest file which is filled
-    with sequential numbers.
+    column is filled with sequential numbers each starting where the last life
+    left off.
 
     Parameters
     ------
@@ -25,13 +23,9 @@ def assign_dataNum(files):
 
     Returns
     ------
-    file1: astropy table
-        the longest file from the list of files it started with with the
-        SourceFile and DataNum columns added
-    new_files: list of astropy tables
-        the list of files it started with with file1 removed and the remaining
-        files read as astropy tables with the SourceFile and DataNum columns
-        added to each table
+    new_files2: list of astropy tables
+        the list of files it started with the files read as astropy tables and
+        the SourceFile and DataNum columns added to each table
     """
     new_files = list(files)
 
@@ -63,10 +57,14 @@ def assign_dataNum(files):
 
 
 def assign_id2(file1, RA1='RA', Dec1='Dec', search_range=.5):
-    """Compares RA/Decs within a file and fills the DataNum column of the smaller file.
+    """Compares RA/Decs within file1 and matches the DataNum column for
+    close points.
 
-    Fills the DataNum column in the second file with the DataNum of the closest
-    RA/Dec match within the given arcsecond range in the first file.
+    Fills the DataNum column for all points within a given arcsecond radius of
+    the original point with it's DataNum.
+
+    !!!Does not appear to check that all the points matched as the same source
+    are from different files!!!
 
     Parameters
     ------
@@ -76,16 +74,12 @@ def assign_id2(file1, RA1='RA', Dec1='Dec', search_range=.5):
         table key, name of column holding Right Ascension data for file1
     Dec1: string, optional
         table key, name of column holding Declination data for file1
-    RA2: string, optional
-        table key, name of column holding Right Ascension data for file2
-    Dec2: string, optional
-        table key, name of column holding Declination data for file2
 
     Returns
     ------
     file2: astropy table
-        the DataNum column will be filled with the DataNum of the closest
-        source from the other table
+        the DataNum column will have the same value for all sources within the
+        given arcsecond radius
     """
     #import pdb; pdb.set_trace() #debuger
 
@@ -116,7 +110,7 @@ def assign_id2(file1, RA1='RA', Dec1='Dec', search_range=.5):
             #print(good_matches)
             if good_matches.sum() > 1: #when I remove this if statement (or change the 1 to 0) all the dataNums are altered but there's a weird error, must check smaller data set
                 #print('file1 DataNum before', file1['DataNum'][idxcatalog][good_matches])
-                file1['DataNum'][idxcatalog[good_matches]] = str(n + 100000)
+                file1['DataNum'][idxcatalog[good_matches]] = str(n + 1000000)
                 #print('file1 DataNum after', file1['DataNum'][idxcatalog][good_matches])
                 for i in idxcatalog[good_matches]:
                     matched_rows.append(i)
