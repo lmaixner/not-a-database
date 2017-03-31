@@ -13,8 +13,8 @@ def __init__(self, tstuff):
 
 
 def make_CMD(extension, short_w, long_w, cluster_members=False, member_RA="RA",
-    member_Dec="Dec", prob_col="prob_member", threshold=70, plt_nonmembers=False, plot_separate=True,
-    object_name=False, legend_loc=4):
+    member_Dec="Dec", prob_col="prob_member", threshold=70,
+    plt_nonmembers=False, plot_separate=True, object_name=False, legend_loc=4):
     """Links the two data sets it is given so the RA/Decs agree and plots a CMD.
 
     Compares second data set to first data set and assigns second data set the

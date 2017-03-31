@@ -6,7 +6,7 @@ import os
 
 ### VARIABLES ###
 # Location of Source Images
-sourceFilesLocation = r'D:\Everything\Class\Git\M71TrimData'
+sourceFilesLocation = r'D:\Everything\Class\Git\M71LongTrimData'
 # Where to put intermediate spreadsheets
 # full path or folder in current directory
 pileFileLocation = r'output'

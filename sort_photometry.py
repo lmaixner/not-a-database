@@ -6,8 +6,8 @@ import glob
 from astropy.table import Table, Column, vstack
 from astropy.coordinates import SkyCoord
 from astropy import units as u
-from load_photometry import make_folder
-from new_sort import *
+from .load_photometry import make_folder
+from .new_sort import *
 
 #import pdb; pdb.set_trace() #debuger
 
@@ -78,9 +78,9 @@ def assign_id(file1, file2, RA1='RA', Dec1='Dec', RA2='RA', Dec2='Dec', search_r
     print('file2 assign_id end\n', file2)
     return file2
 
-
+"""
 def sort_files(files):
-    """Finds the longest file in the list and separates it, also adds two columns.
+    "Finds the longest file in the list and separates it, also adds two columns.
 
     Searches the list of files for the longest file, removes it to be the
     comparison file, and creates a shorter list with the longest file removed.
@@ -104,7 +104,7 @@ def sort_files(files):
         the list of files it started with with file1 removed and the remaining
         files read as astropy tables with the SourceFile and DataNum columns
         added to each table
-    """
+    "
     new_files = list(files)
     new_files2 = list(new_files)  # duplicate list
 
@@ -159,7 +159,7 @@ def sort_files(files):
         ct += 1
 
     return file1, new_files
-
+"""
 
 def f_group(filename):
     """
@@ -182,13 +182,12 @@ def f_group(filename):
 
     files = glob.glob(filename)
 
-    #file1, files2 = sort_files(files)
     files2 = assign_dataNum(files)
 
     # creates new csv file to pile all the new files onto
-    big_file = files2.pop(0)  #file1
-    #print(big_file)
-    # and add all files to big_file
+    big_file = files2.pop(0)
+
+    # add all files to big_file
     for file in files2:
         big_file = vstack([big_file, file], join_type='exact')
 
@@ -200,7 +199,7 @@ def f_group(filename):
 
 def sort_photometry(f_ext, object, filters=None, target_dir='Sorted', parent_dir=''):
     """
-    For the function to run the files must have the filter type letter as the
+    For the function to run, the files must have the filter type letter as the
     last letter of the filename. Creates a directory in the location specified
     by parent_dir/target_dir to put the files it creates. The files in the
     source location are comined into one large file per filter color and saved
