@@ -1,0 +1,2 @@
+DataNum,NumSources,AvgRA,AvgDec,AvgFlux,FluxErr,InstruMag,MaxPeak,a_Avg,b_Avg,thetaAvg
+1000000.0,1.0,298.5083739,18.63099377,3500.0,30.03312718,-8.86017011087569,129.249527,3.0,1.0,0.25
