@@ -8,3 +8,4 @@ TestFilesv5
 TestFilesv8
 garbage
 *.pyc
+.cache
