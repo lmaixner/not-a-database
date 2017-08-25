@@ -14,10 +14,12 @@ def test_f_group():
     """
 
     # separately retrieve files that f_group should have for comparison
-    R_filelist = glob.glob('f_group_testdata/*R.csv')
-    I_filelist = glob.glob('f_group_testdata/*I.csv')
-    V_filelist = glob.glob('f_group_testdata/*V.csv')
-    B_filelist = glob.glob('f_group_testdata/*B.csv')
+    base_directory = get_test_data()
+    test_file_dir = path.join(base_directory, 'f_group_testdata')
+    R_filelist = glob.glob('{}/*R.csv'.format(test_file_dir))
+    I_filelist = glob.glob('{}/*I.csv'.format(test_file_dir))
+    V_filelist = glob.glob('{}/*V.csv'.format(test_file_dir))
+    B_filelist = glob.glob('{}/*B.csv'.format(test_file_dir))
 
     len_R = 0
     len_I = 0
@@ -36,7 +38,7 @@ def test_f_group():
 
     # creating filename pattern that is sent to f_group that it uses for file
     # retrieval
-    f_ext = r'D:\Everything\Class\Git\tests\f_group_testdata'
+    f_ext = test_file_dir
     pattern = os.path.join(f_ext, '*{}.csv')
 
     # send f_group: f_ext + '\*I.csv' for each filter in the list
