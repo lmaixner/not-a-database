@@ -18,6 +18,11 @@ from ccdproc import CCDData
 from astropy.visualization import scale_image
 import matplotlib.pyplot as plt
 
+import sys
+
+if sys.platform != 'win32':
+    WindowsError = IOError
+
 __inner_rad__ = 20.
 __outer_rad__ = 30.
 __t_gain__ = 1.5
@@ -26,6 +31,15 @@ __read_noise__ = 30
 
 def __init__(self, tstuff):
     self.__stuff = tstuff
+
+
+def _file_missing_message(e):
+    """
+    Check whether the content of the error matches the message expected.
+    """
+    win = 'Cannot create a file when that file already exists' in e.strerror
+    nix = 'File exists' in e.strerror
+    return win or nix
 
 
 def load_photometry(file_location):
@@ -100,8 +114,8 @@ def make_folder(target_dir, parent_dir=''):
     if parent_dir == '':
         try:
             os.mkdir(target_dir)
-        except WindowsError as e:
-            if 'Cannot create a file when that file already exists' in e.strerror:
+        except (WindowsError, OSError) as e:
+            if _file_missing_message(e):
                 pass
             else:
                 raise
@@ -109,8 +123,8 @@ def make_folder(target_dir, parent_dir=''):
         make_folder(parent_dir)
         try:
             os.mkdir(os.path.join(parent_dir, target_dir))
-        except WindowsError as e:
-            if 'Cannot create a file when that file already exists' in e.strerror:
+        except (WindowsError, OSError) as e:
+            if _file_missing_message(e):
                 pass
             else:
                 raise
