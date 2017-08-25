@@ -1,6 +1,9 @@
-from ..new_sort import assign_id2
 import glob
+from os import path
 from astropy.table import Table
+
+from .get_test_data import get_test_data
+from ..new_sort import assign_id2
 
 
 def test_assign_id2():

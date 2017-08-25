@@ -1,7 +1,11 @@
-from ..sort_photometry import f_group
 import glob
-from astropy.table import Table
 import os
+from os import path
+
+from astropy.table import Table
+
+from .get_test_data import get_test_data
+from ..sort_photometry import f_group
 
 
 def test_f_group():

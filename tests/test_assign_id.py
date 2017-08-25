@@ -1,6 +1,10 @@
-from ..sort_photometry import assign_id
 import glob
+from os import path
+
 from astropy.table import Table
+
+from ..sort_photometry import assign_id
+from .get_test_data import get_test_data
 
 
 def test_assign_id():

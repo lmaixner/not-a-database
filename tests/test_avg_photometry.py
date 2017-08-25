@@ -1,6 +1,10 @@
-from ..avg_photometry import *
-from astropy.table import Table
 import glob
+from os import path
+
+from astropy.table import Table
+
+from .get_test_data import get_test_data
+from ..avg_photometry import *
 
 
 def test_avg_photometry():
