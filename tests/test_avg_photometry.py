@@ -1,6 +1,10 @@
-from ..avg_photometry import *
-from astropy.table import Table
 import glob
+from os import path
+
+from astropy.table import Table
+
+from .get_test_data import get_test_data
+from ..avg_photometry import *
 
 
 def test_avg_photometry():
@@ -24,10 +28,13 @@ def test_avg_photometry():
     final_column_names = ['DataNum', 'NumSources', 'AvgRA', 'AvgDec',
     'AvgFlux', 'FluxErr', 'InstruMag', 'MaxPeak', 'a_Avg', 'b_Avg', 'thetaAvg']
 
+
     # Locations of test files
-    file1loc = r'D:\Everything\Class\Git\tests\avg_photometry_testdata\1\*'
-    file2loc = r'D:\Everything\Class\Git\tests\avg_photometry_testdata\2\*'
-    file3loc = r'D:\Everything\Class\Git\tests\avg_photometry_testdata\3\*'
+    base_directory = get_test_data()
+    test_file_dir = path.join(base_directory, 'avg_photometry_testdata')
+    file1loc = path.join(test_file_dir, '1', '*')
+    file2loc = path.join(test_file_dir, '2', '*')
+    file3loc = path.join(test_file_dir, '3', '*')
 
     # run through function
     avgd_file1loc = avg_photometry(file1loc)

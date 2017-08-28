@@ -1,6 +1,10 @@
-from ..sort_photometry import assign_id
 import glob
+from os import path
+
 from astropy.table import Table
+
+from ..sort_photometry import assign_id
+from .get_test_data import get_test_data
 
 
 def test_assign_id():
@@ -15,9 +19,11 @@ def test_assign_id():
     # retrieve files from test folder
     # must glob separately in order to ensure each file gets assigned to the
     # correct position
-    file1list = glob.glob('assign_id_testdata/1*.csv')
-    file2list = glob.glob('assign_id_testdata/2*.csv')
-    file3list = glob.glob('assign_id_testdata/3*.csv')
+    base_directory = get_test_data()
+    test_file_dir = path.join(base_directory, 'assign_id_testdata')
+    file1list = glob.glob('{}/1*.csv'.format(test_file_dir))
+    file2list = glob.glob('{}/2*.csv'.format(test_file_dir))
+    file3list = glob.glob('{}/3*.csv'.format(test_file_dir))
     file1 = file1list[0]
     file2 = file2list[0]
     file3 = file3list[0]
