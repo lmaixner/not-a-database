@@ -7,7 +7,8 @@ import pytest
 import numpy as np
 
 from astropy.table import Table
-from ..sort_photometry import f_group
+from sort_photometry import f_group
+from avg_photometry import avg_photometry
 
 
 def data_directory():
@@ -86,3 +87,43 @@ def test_catalog_with_self_offset(tmpdir, start_offset):
     # Any objects not offset should match the original source.
     assert np.all(result['DataNum'][n_original:n_original + start_offset] ==
                   np.arange(start_offset) + 1)
+
+
+# tmpdir is a temporary directory automatically created by pytest.
+def test_avg_photometry(tmpdir):
+    """
+    Check that sources are properly matched (and then averaged) using a small
+    test data file.
+    """
+    working_directory = copy_data_to_temp(tmpdir.strpath)
+    sorted_file_name = os.path.join(working_directory, 'M71-sorted-I.csv')
+    os.chdir(working_directory)
+
+    # Call avg_photometry with our test file.
+    output_file = avg_photometry(sorted_file_name)
+
+    # We want to know if the output file contains what we expect. Based on
+    # the short input file that is:
+    #
+    #  Only these DataNums and counts, defined in a dict for use a little
+    # further on.
+
+    expected_result = {
+        1000001.0: 1,
+        1000003.0: 2,
+        1000004.0: 2
+    }
+
+    #
+    # To check, open the output file and check those columns.
+
+    output = Table.read(os.path.join(output_file, 'AvgM71-sorted-I.csv'))
+
+    # Check that the DataNums we expect, and *only* those datanums, are
+    # in the output file. A set in python is the unique elements of a group.
+    assert set(expected_result.keys()) == set(output['DataNum'])
+
+    # Now check that there is the right repeat for each DataNum
+    for dn, cnt in expected_result.iteritems():
+        matching_row = (dn == output['DataNum'])
+        assert cnt == output['NumSources'][matching_row]
