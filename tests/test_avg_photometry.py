@@ -9,13 +9,14 @@ from ..avg_photometry import *
 
 def test_avg_photometry():
     """
-    Initial file1 will have points with matching RA/Dec and the final file
-    should have one point with the values of the AvgDec, AvgRA, AvgFlux, a_Avg,
-    b_Avg, and thetaAvg columns being the averages of those in the initial.
+    Initial file1 will have points with matching RA/Dec/dataNum and the final
+    file should have one point with the values of the AvgDec, AvgRA, AvgFlux,
+    a_Avg, b_Avg, and thetaAvg columns being the averages of those in the
+    initial.
 
-    Initial file2 will have points with non-matching RA/Dec and the final file
-    should have the same number of points with the values being the same as
-    those in the initial.
+    Initial file2 will have points with non-matching RA/Dec/DataNum and the
+    final file should have the same number of points with the values being the
+    same as those in the initial.
 
     Initial file3 will have 1 line.  The values in the final Avg" " columns
     should match those in their initial columns.
